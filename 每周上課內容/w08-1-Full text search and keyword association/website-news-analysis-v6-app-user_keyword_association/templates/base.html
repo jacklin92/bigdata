@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="zh-TW">
+  <head>
+    <title>
+      {% block title %}
+        輿情分析平台
+      {% endblock %}
+    </title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    {% block extra_css %}
+    {% endblock %}
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <!-- Navigation Bar -->
+        <div class="col-lg-12 mb-2 mt-2">
+          <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="/">輿情大數據</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                  <!-- 基礎熱門分析 -->
+                  <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">熱門分析</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="{% url 'app_top_keyword:home' %}">熱門關鍵詞分析</a>
+                      <a class="dropdown-item" href="{% url 'app_top_person:home' %}">熱門人物排行分析</a>
+                      <a class="dropdown-item" href="{% url 'app_top_ner:home' %}">命名實體熱門分析</a>
+                      <a class="dropdown-item" href="#" style="color: green">昨日誰最大</a>
+                    </div>
+                  </div>
+
+                  <!-- 進階自訂分析 -->
+                  <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">進階查詢</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="{% url 'app_user_keyword:home' %}">自訂關鍵詞熱門度分析</a>
+                      <a class="dropdown-item" href="{% url 'app_user_keyword_association:home' %}">自訂全文檢索與關聯分析</a>
+                      <a class="dropdown-item" href="#">自訂關鍵詞之情緒分析</a>
+                    </div>
+                  </div>
+
+                  <!-- 特色分析 -->
+                  <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">特色分析</button>
+                    <div class="dropdown-menu">
+                      <a class="nav-link" href="{% url 'app_scchen:home' %}" style="color: green">時中聲量我最大</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="nav-link" href="#" style="color: green">台北市長選舉聲量觀測站</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="nav-link" href="#">政黨聲量排行榜</a>
+                      <a class="nav-link" href="#">政治人物聲量排行榜</a>
+                      <div class="dropdown-divider"></div>
+
+                      <a class="nav-link" href="#" style="color: green">事件人物聲量相關分析</a>
+                    </div>
+                  </div>
+
+                  <!-- 新聞推薦系統 -->
+                  <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">新聞推薦系統</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">Bert/Qwen新聞推薦-新聞查找相似新聞</a>
+                    </div>
+                  </div>
+
+                  <!-- NLP應用 -->
+                  <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">自然語言理解</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">語言模型Bert/Qwen情緒分類</a>
+                      <a class="dropdown-item" href="#">語言模型Bert/Qwen新聞分類</a>
+                    </div>
+                  </div>
+
+                  <!-- 使用資料庫 -->
+                  <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">使用DB</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">熱門人物資料庫查詢</a>
+                      <a class="dropdown-item" href="#">昨日新聞資料庫全文檢索</a>
+                    </div>
+                  </div>
+
+                  <!-- 其他特色應用 -->
+                  <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">特色應用</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">高雄市市長選舉人氣分析</a>
+                      <a class="dropdown-item" href="#">珊珊市長人氣</a>
+                      <a class="dropdown-item" href="#">阿邁市長人氣</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="#">疫情發燒監視</a>
+                      <a class="dropdown-item" href="#">蘋果發燒站</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="#">人氣美食排行榜</a>
+                      <a class="dropdown-item" href="#">財經議題排行榜</a>
+                      <a class="dropdown-item" href="#">股市新聞監視站</a>
+                      <a class="dropdown-item" href="#">科技新聞熱門議題分析</a>
+                      <a class="dropdown-item" href="#">人力銀行職缺大熱門</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="#">批踢踢酸民大吐槽</a>
+                      <a class="dropdown-item" href="#">批踢踢鄉民來八卦</a>
+                      <a class="dropdown-item" href="#">滴卡大學生關心議題</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="#">新聞媒體政黨傾向調查分析</a>
+                      <a class="dropdown-item" href="#">自訂競爭大PK</a>
+                    </div>
+                  </div>
+
+                  <!-- 會員訂閱 -->
+                  <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">付費訂閱</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">長時間(超過3個月)監測分析(收費表)</a>
+                      <a class="dropdown-item" href="#">更多資料庫分析(收費表)</a>
+                      <a class="dropdown-item" href="#">為你訂製輿情分析任務(報價)</a>
+                    </div>
+                  </div>
+
+                  <!-- 關於 -->
+                  <div class="btn-group">
+                    <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">關於</button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">課程介紹網頁</a>
+                      <a class="dropdown-item" href="#">如何使用輿情API</a>
+                    </div>
+                  </div>
+                </ul>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        <!-- End of Navigation Bar -->
+
+        <!-- Main Content -->
+        {% block content %}
+
+        {% endblock %}
+      </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Additional Scripts -->
+    {% block extra_js %}
+    {% endblock %}
+  </body>
+</html>

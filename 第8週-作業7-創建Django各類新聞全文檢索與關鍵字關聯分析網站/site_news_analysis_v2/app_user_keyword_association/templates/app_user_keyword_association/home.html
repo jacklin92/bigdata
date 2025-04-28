@@ -1,0 +1,382 @@
+{% extends 'base_v3.html' %} {% block title %}
+全文檢索與你關心的關鍵詞關聯分析
+{% endblock %} {% block content %}
+        <div class="col-lg-12">
+          <h1>全文檢索與你關心的關鍵詞關聯分析</h1>
+          <p>
+            對你想要了解的議題進行全文檢索，找出有哪些詞與你的關鍵詞一起出現?
+          </p>
+        </div>
+
+        <div class="container mt-4">
+          <div class="row">
+            <!-- 左邊：輸入條件 -->
+            <div class="col-lg-6 mb-2">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="h6 text-uppercase mb-0">輸入條件</h3>
+                </div>
+                <div class="card-body">
+                  <div class="row mb-3">
+                    <label class="col-md-3 col-form-label">關心哪個關鍵詞?</label>
+                    <div class="col-md-9">
+                      <input id="input_keyword" name="userkey" value="股市" class="form-control" />
+                      <div class="form-text">
+                        全文搜尋，可輸入多個關鍵詞或片段詞句，以空白隔開。
+                      </div>
+                    </div>
+                  </div>
+      
+                  <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">條件</label>
+                    <div class="col-md-9">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="and" name="condradio" id="condradio1" checked />
+                        <label class="form-check-label" for="condradio1">and</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="or" name="condradio" id="condradio2" />
+                        <label class="form-check-label" for="condradio2">or</label>
+                      </div>
+                    </div>
+                  </div>
+      
+                  <div class="row mb-3">
+                    <label class="col-sm-3 col-form-label">新聞類別</label>
+                    <div class="col-md-9">
+                      <!-- 多個類別按鈕 -->
+                      <!-- 可依需求增加或減少 -->
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="全部" name="cateradio" id="cateradio1" checked />
+                        <label class="form-check-label" for="cateradio1">全部</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="焦點" name="cateradio" id="cateradio2" />
+                        <label class="form-check-label" for="cateradio2">焦點</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="娛樂影劇" name="cateradio" id="cateradio3" />
+                        <label class="form-check-label" for="cateradio3">娛樂影劇</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="國際" name="cateradio" id="cateradio4" />
+                        <label class="form-check-label" for="cateradio4">國際</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="政治" name="cateradio" id="cateradio5" />
+                        <label class="form-check-label" for="cateradio5">政治</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="社會地方" name="cateradio" id="cateradio6" />
+                        <label class="form-check-label" for="cateradio6">社會地方</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="財經" name="cateradio" id="cateradio7" />
+                        <label class="form-check-label" for="cateradio7">財經</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="運動" name="cateradio" id="cateradio8" />
+                        <label class="form-check-label" for="cateradio8">運動</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="玩樂" name="cateradio" id="cateradio9" />
+                        <label class="form-check-label" for="cateradio9">玩樂</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="品味" name="cateradio" id="cateradio10" />
+                        <label class="form-check-label" for="cateradio10">品味</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="遊戲3C" name="cateradio" id="cateradio11" />
+                        <label class="form-check-label" for="cateradio11">遊戲3C</label>
+                      </div>
+                    </div>
+                  </div>
+      
+                  <div class="row mb-3">
+                    <label class="col-md-3 col-form-label">最近多少周?</label>
+                    <div class="col-md-9">
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="1" name="wkradio" id="wkradio1" />
+                        <label class="form-check-label" for="wkradio1">1</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="2" name="wkradio" id="wkradio2" checked />
+                        <label class="form-check-label" for="wkradio2">2</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="3" name="wkradio" id="wkradio3" />
+                        <label class="form-check-label" for="wkradio3">3</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="4" name="wkradio" id="wkradio4" />
+                        <label class="form-check-label" for="wkradio4">4</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="6" name="wkradio" id="wkradio6" />
+                        <label class="form-check-label" for="wkradio6">6</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="8" name="wkradio" id="wkradio8" />
+                        <label class="form-check-label" for="wkradio8">8</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" value="12" name="wkradio" id="wkradio12" />
+                        <label class="form-check-label" for="wkradio12">12</label>
+                      </div>
+                      <div class="form-text">
+                        以最新資料時間為準，往前推多少周?
+                      </div>
+                    </div>
+                  </div>
+      
+                  <div class="row mb-3">
+                    <div class="col-md-9 ms-auto">
+                      <button type="button" id="btn_ok" class="btn btn-primary">查詢</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+            <!-- 右邊：繪圖區塊 -->
+            <div class="col-lg-6 mb-2">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="h6 text-uppercase mb-0">新聞趨勢圖</h3>
+                </div>
+                <div class="card-body">
+                  <div id="cloud"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 新聞連結區塊-->
+        <div class="col-lg-6 mb-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="h6 text-uppercase mb-0">以下新聞與它有關(取數篇展示)</h3>
+            </div>
+            <div class="card-body">
+              <h2 id="num_articles"></h2>
+              <ul class="list-group" id="newslinks"></ul>
+            </div>
+          </div>
+        </div>
+        <!-- 區塊結束-->
+
+        <!-- 同時出現的關鍵字區塊-->
+        <div class="col-lg-6 mb-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="h6 text-uppercase mb-0">關鍵字所在的段落(取數段展示)</h3>
+            </div>
+            <div class="card-body">
+              <!-- 這個標籤顯示頁碼 -->
+              <ul class="list-group" id="same_paragraph"></ul>
+            </div>
+          </div>
+        </div>
+        <!-- 區塊結束-->
+
+        <!-- 同時出現的關鍵字區塊-->
+        <div class="col-lg-6 mb-2">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="h6 text-uppercase mb-0">與它同時出現的關鍵字</h3>
+            </div>
+            <div class="card-body">
+              <ul id="related_words"></ul>
+            </div>
+          </div>
+        </div>
+        <!-- 區塊結束-->
+        {% endblock %} {% block extra_js %}
+
+<!-- chartjs-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+
+<!-- cloud chart
+Here is the cloud chart script.
+reference:http://bl.ocks.org/joews/9697914
+reference:https://jsfiddle.net/x827g61m/
+reference:https://www.d3-graph-gallery.com/wordcloud
+src="https://rawgit.com/jasondavies/d3-cloud/master/build/d3.layout.cloud.js">
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+<script src="https://cdn.rawgit.com/jasondavies/d3-cloud/v1.2.1/build/d3.layout.cloud.js"></script>
+
+<!-- Here are your codes -->
+<script>
+  // Show the page with default setting when page is initialized.
+  call_ajax();
+
+  // btn submit
+  $("#btn_ok").on("click", function () {
+    call_ajax();
+  }); //event function
+
+  // category radio button
+  $("input[name='cateradio']").on("change", function () {
+    call_ajax();
+  }); //event function
+
+  // weeks radio button
+  $("input[name='wkradio']").on("change", function () {
+    call_ajax();
+  }); //event function
+
+  // condition radio button
+  $("input[name='condradio']").on("change", function () {
+    call_ajax();
+  }); //event function
+
+  function call_ajax() {
+    const userkey = $("#input_keyword").val();
+    const weeks = $("input[name='wkradio']:checked").val();
+    const cate = $("input[name='cateradio']:checked").val();
+    const cond = $("input[name='condradio']:checked").val();
+
+    if (userkey.length < 2) {
+      alert("輸入關鍵字不可空白或小於兩個中文字!");
+      return 0;
+    }
+    $.ajax({
+      type: "POST",
+      url: "api_get_userkey_associate/",
+      data: {
+        userkey: userkey,
+        cate: cate,
+        weeks: weeks,
+        cond: cond,
+      }, // pass to server
+      success: function (received) {
+        
+        // display number of articles or stories
+        const num_articles = received["num_articles"];
+        $("#num_articles").empty();
+        $("#num_articles").append("<h2 style='color:red'>總篇數:"+num_articles+"</h2>");
+        
+        // show news title and link
+        const newslinks = received["newslinks"];
+        $("#newslinks").empty();
+        if (newslinks.length == 0) {
+          alert("No result returned!");
+        }
+        // show news title and link
+        for (let i = 0; i < newslinks.length; i++) {
+          const items =
+            '<li class="list-group-item py-2 border-bottom">' +
+            '<div class="d-flex align-items-center">' +
+            '<span class="badge bg-secondary me-2 px-2 py-1">' + newslinks[i].category + '</span>' +
+            '<a href="' + newslinks[i].link + '" class="text-decoration-none" target="_blank">' +
+            newslinks[i].title +
+            '</a>' +
+            '</div>' +
+            '</li>';
+          $("#newslinks").append(items);
+        }
+
+        // show related words
+        const related_words = received["related_words"];
+        $("#related_words").empty();
+        for (let i = 0; i < related_words.length; i++) {
+          const items = "<li>" + related_words[i] + "</li>";
+          $("#related_words").append(items);
+        }
+
+        // show paragraphs containing the user keywords
+        const same_paragraph = received["same_paragraph"];
+        $("#same_paragraph").empty();
+        $("#same_paragraph").append("<h2 style='color:red'>總段落數:"+same_paragraph.length+"</h2>");
+
+        for (let i = 0; i < same_paragraph.length; i++) {
+          const msg = "<li class='list-group-item py-2 border-bottom'>" + same_paragraph[i] + "</li>";
+          $("#same_paragraph").append(msg);
+        }
+
+        // draw word cloud for related words
+        topWordToDraw = received.clouddata;
+        $("#cloud").empty();
+        drawCloud(topWordToDraw, "#cloud");
+      }, //success function
+
+      error: function (msg, status) {
+        console.log(msg);
+        console.log(status);
+      }, //print status and msg when ajax goes wrong
+    }); //ajax
+  } //function call_ajax()
+
+
+  function drawCloud(topWordToDraw, element_id) {
+    // You should set a proper box size to show cloud chart
+    const width = 500;
+    const height = 500;
+
+    // First define your cloud data, using `text` and `size` properties:
+    // Next you need to use the layout script to calculate the placement, rotation and size of each word:
+    // Constructs a new cloud layout instance.
+    // Wordcloud features that are different from one word to the other
+    d3.layout
+      .cloud()
+      .size([width, height])
+      .words(topWordToDraw) //data for cloud chart
+      .rotate(function () {
+        //return ~~(Math.random() * 2) * 90; //~~1.5 => 1  (same as Math.floor(1.5))
+        return 0; // don't rotate
+      })
+      .font("Impact")
+      .fontSize(function (d) {
+        return d.size;
+      })
+      .on("end", draw) //call function draw()
+      .start();
+
+    // Finally implement `draw`, which performs the D3 drawing
+    // This function takes the output of 'layout' above and draw the words
+    // Wordcloud features that are THE SAME from one word to the other can be here
+    function draw(words) {
+      const fill = d3.scale.category20();
+
+      // append the svg object to the body of the page
+      d3.select(element_id)
+        .append("svg") // element_id such as "#cloud"
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr(
+          "transform",
+          "translate(" + ~~(width / 2) + "," + ~~(height / 2) + ")"
+        )
+        .selectAll("text")
+        .data(words)
+        .enter()
+        .append("text")
+        .style("font-size", function (d) {
+          return d.size + "px";
+        })
+        .style("-webkit-touch-callout", "none")
+        .style("-webkit-user-select", "none")
+        .style("-khtml-user-select", "none")
+        .style("-moz-user-select", "none")
+        .style("-ms-user-select", "none")
+        .style("user-select", "none")
+        .style("cursor", "default")
+        .style("font-family", "Impact")
+        .style("fill", function (d, i) {
+          return fill(i);
+        })
+        .attr("text-anchor", "middle")
+        .attr("transform", function (d) {
+          return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+        })
+        .text(function (d) {
+          return d.text;
+        });
+    } //draw
+  } //drawCloud()
+</script>
+{% endblock %}

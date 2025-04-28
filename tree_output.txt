@@ -1,0 +1,12 @@
+site_news_analysis_v2/
+├── app_person_fan/
+├── app_top_keyword/
+├── app_top_ner/
+├── app_top_person/
+├── app_user_keyword/
+├── app_user_keyword_association/
+├── db.sqlite3
+├── manage.py
+├── static/
+├── templates/
+├── website_configs/
