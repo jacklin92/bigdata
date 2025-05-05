@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import path
 from django.urls import include
 
@@ -15,4 +16,9 @@ urlpatterns = [
     # user keyword sentiment
     path("userkeyword_senti/", include("app_user_keyword_sentiment.urls")),
     path("taipeimayor/", include("app_taipei_mayor.urls")),
+    path('userkeyword_db/', include('app_user_keyword_db.urls')),
+    # admin
+    path('admin/', admin.site.urls),
+    path('topperson_db/', include('app_top_person_db.urls')),
+
 ]

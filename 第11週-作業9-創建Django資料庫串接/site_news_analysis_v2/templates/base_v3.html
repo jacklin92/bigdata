@@ -161,10 +161,11 @@
                       使用DB
                     </button>
                     <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#">熱門人物資料庫查詢</a>
-                      <a class="dropdown-item" href="#"
+                      <a class="dropdown-item" href="{% url 'app_top_person_db:home' %}">熱門人物資料庫查詢</a>
+                      <a class="dropdown-item" href="{% url 'app_user_keyword_db:home' %}"
                         >昨日新聞資料庫全文檢索</a
                       >
+                      <a class="dropdown-item" href="{% url 'app_top_person_db:calculate_top_person' %}">熱門人物立刻計算(管理者定時執行)</a>
                     </div>
                   </div>
 
