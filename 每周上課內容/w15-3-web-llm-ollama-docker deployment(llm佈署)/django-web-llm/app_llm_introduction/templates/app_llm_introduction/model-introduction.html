@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  模型介紹 - 輿情分析平台
+{% endblock %}
+
+{% block extra_css %}
+  <!-- GitHub Markdown CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css">
+  <!-- Highlight.js for Code Syntax -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+{% endblock %}
+
+{% block content %}
+  <div class="col-12">
+    <h1 class="my-4">模型介紹</h1>
+    <div class="card">
+      <div class="card-body markdown-body">{{ model_intro_html_content|safe }}</div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Highlight.js JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+<script>
+  // 使用更簡潔的方法初始化代碼高亮
+  hljs.highlightAll();
+</script>
+{% endblock %}

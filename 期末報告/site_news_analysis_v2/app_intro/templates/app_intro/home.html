@@ -1,0 +1,110 @@
+{% extends 'base_v3.html' %}
+{% load static %}
+{% block title %}
+輿情分析平台｜功能導引
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="page-title">輿情分析平台｜功能導引頁</h1>
+  <p class="page-subtitle">歡迎使用本平台，以下是您可使用的主要功能分類：</p>
+
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    <!-- 熱門分析 -->
+    <div class="col">
+      <div class="analysis-card hover-lift border-gradient">
+        <div class="card-header">
+          <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> 熱門分析</h2>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li><a href="{% url 'app_top_keyword:home' %}" class="feature-link">熱門關鍵詞分析</a></li>
+            <li><a href="{% url 'app_top_person:home' %}" class="feature-link">熱門人物排行分析</a></li>
+            <li><a href="{% url 'app_user_keyword:home' %}" class="feature-link">昨日誰最大</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 進階查詢 -->
+    <div class="col">
+      <div class="analysis-card hover-lift border-gradient">
+        <div class="card-header">
+          <h2 class="card-title"><i class="bi bi-search"></i> 進階查詢</h2>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li><a href="{% url 'app_user_keyword_association:home' %}" class="feature-link">自訂全文檢索與關聯分析</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 特色分析 -->
+    <div class="col">
+      <div class="analysis-card hover-lift border-gradient">
+        <div class="card-header">
+          <h2 class="card-title"><i class="bi bi-stars"></i> 特色分析</h2>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li><a href="{% url 'app_person_fan:home' %}" class="feature-link">聲量我最大</a></li>
+            <li><a href="{% url 'app_person_volume:home' %}" class="feature-link">人物聲量觀測站</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自然語言理解 -->
+    <div class="col">
+      <div class="analysis-card hover-lift border-gradient">
+        <div class="card-header">
+          <h2 class="card-title"><i class="bi bi-chat-text"></i> 自然語言理解</h2>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li><a href="{% url 'app_user_keyword_sentiment:home' %}" class="feature-link">語言模型 Bert/Qwen 情緒分類</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 使用資料庫 -->
+    <div class="col">
+      <div class="analysis-card hover-lift border-gradient">
+        <div class="card-header">
+          <h2 class="card-title"><i class="bi bi-database"></i> 使用資料庫</h2>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li><a href="{% url 'app_top_person_db:home' %}" class="feature-link">熱門人物資料庫查詢</a></li>
+            <li><a href="{% url 'app_user_keyword_db:home' %}" class="feature-link">昨日新聞資料庫全文檢索</a></li>
+            <li><a href="{% url 'app_top_person_db:calculate_top_person' %}" class="feature-link">熱門人物立刻計算（管理者用）</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 特色應用 -->
+    <div class="col">
+      <div class="analysis-card hover-lift border-gradient">
+        <div class="card-header">
+          <h2 class="card-title"><i class="bi bi-robot"></i> AI 特色應用</h2>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li><a href="{% url 'app_user_keyword_llm_report:home' %}" class="feature-link">AI 分析報告自動生成</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

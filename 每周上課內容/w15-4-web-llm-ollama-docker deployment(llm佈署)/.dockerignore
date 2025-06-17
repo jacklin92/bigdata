@@ -1,0 +1,23 @@
+# This file specifies files and directories that should be ignored by Docker when building the image.
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+*.db
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.egg-info
+dist
+build
+.eggs
+*.egg
+*.whl
+*.tar.gz
+*.zip
+.vscode
+.idea
+.DS_Store
+Thumbs.db

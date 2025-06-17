@@ -1,0 +1,55 @@
+services:
+  web-llm:
+    build:
+      context: . # 在當下目錄(docker-compose.yml所在目錄)讓Dockerfile 建置（build context）
+      dockerfile: ./docker-files-llm/Dockerfile
+    container_name: web-llm # Name of the container for the Django app 不寫的話會自動生成與服務名稱web相同的名稱
+    volumes:
+      - ./django-web-llm:/app # Mount the local Django project directory
+      - static_volume_llm:/app/staticfiles # Mount static files volume for llm
+    expose:
+      - 8000 # Expose port 8000 for internal communication
+
+    # 如果能夠使用 NVIDIA GPU 必須在此處加上deploy
+
+  nginx:
+    build:
+      context: ./nginx # Path to your nginx Dockerfile
+    volumes:
+      - static_volume_llm:/app/staticfiles/llm # Mount the static files volume for llm
+    ports:
+      - "80:80" # Map port 80 on the host to port 80 in the container
+    depends_on:
+      - web-llm
+  ollama:
+    image: ollama/ollama:latest # 使用 Ollama 的最新版本映像檔
+    container_name: ollama-v2 # 指定容器名稱為 ollama
+    ports:
+      - "0.0.0.0:11434:11434" # 對外開放本機的 11434 端口對應容器內部的 11434 端口（Ollama 預設 API 端口）
+    volumes:
+      - ollama-data:/root/.ollama # 將容器內部的模型資料夾掛載到本地持久化卷中
+      - ./docker-files-ollama/entrypoint_ollama.sh:/entrypoint_ollama.sh:ro # 將本地的 entrypoint.sh 腳本掛載到容器內部，並設為唯讀
+
+    entrypoint: ["sh", "/entrypoint_ollama.sh"] # 指定容器啟動時執行的腳本
+
+    restart: unless-stopped # 若容器意外停止，自動重啟（除非手動停止）
+    tty: true # 分配虛擬終端，對某些工具及除錯方便
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434 # 指定 Ollama 在容器內綁定的主機與端口
+      - OLLAMA_NUM_PARALLEL=2 # 同時允許 2 個請求並行處理
+      - OLLAMA_MAX_QUEUE=512 # 請求等待佇列的最大長度
+      - OLLAMA_MAX_LOADED_MODELS=3 # 同時可在記憶體中保留的模型數量上限
+      - OLLAMA_KEEP_ALIVE=-1 # 保持模型常駐記憶體，不自動卸載
+
+    # 使用 NVIDIA GPU
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia  # 使用 NVIDIA 驅動
+    #           device_ids: ["0"]  # 指定使用第 0 顆 GPU（從 0 開始計算）
+    #           capabilities: [gpu]  # 宣告此裝置具有 GPU 能力
+volumes:
+  # static_volume:可以將兩處static_volume共用，方便nginx與web-llm存取
+  static_volume_llm: # Volume for llm static files
+  ollama-data: # 定義名為 ollama-data 的卷，儲存模型資料

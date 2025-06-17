@@ -1,0 +1,731 @@
+{% extends 'base.html' %} {% block title %} 自建AI上線 {% endblock %} 
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h1>大型語言模型聊天機器人</h1>
+    <p>
+      大型語言模型(Large Language Model)自建AI上線
+      <br />
+      展示如何呼叫使用API，如何建置Ollama的API，如何使用Ollama的API來進行對話。
+    </p>
+    <p>您可以輸入任何問題，AI 將會回答您的問題。</p>
+  </div>
+</div>
+<!-- row -->
+
+<div class="row">
+  
+  <!-- Prompt examples column -->
+  <div class="col-lg-4 mb-3">
+    <div class="card h-100">
+      <div class="card-header">
+        <h4>提示範例</h4>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">一般問題</label>
+          <select
+            class="form-select mb-2 example-selector"
+            id="example_selector_general"
+          >
+            <option value="" selected>-- 請選擇範例 --</option>
+            <option>介紹一下自己的功能</option>
+            <option>介紹台灣最令外國人印象深刻的是甚麼?</option>
+            <option>幫我寫一篇短文描述大數據分析</option>
+            <option>解釋什麼是輿情分析(Public Opinion Analysis)？</option>
+            <option>用Python寫一個計算的文字在一篇文章中出現次數</option>
+            <option>Bootstrap是甚麼?怎麼使用?</option>
+            <option>請介紹有哪一些最新的開源大型語言模型?</option>
+            <option>
+              使用深度學習做文本情緒分類應該怎麼做?請全面考慮所有可能的做法。
+            </option>
+            <option>寫一首關於春天的短詩</option>
+            <option>將「人工智能將改變世界」翻譯成英文</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">情緒分類 Zero-shot</label>
+          <select
+            class="form-select mb-2 example-selector"
+            id="example_selector_sentiment_zeroshot"
+          >
+            <option value="" selected>-- 請選擇範例 --</option>
+            <option>
+              請判斷這段文字是正面或是負面情緒:高級餐廳，服務好, 食物美味
+            </option>
+            <option>
+              請判斷這段文字是正面或是負面情緒:這部電影拍得非常精彩，演員的演技也十分到位
+            </option>
+            <option>
+              請判斷這段文字是正面或是負面情緒:法新社報導，現年88歲的教宗在為病人舉行彌撒後，坐著輪椅穿越聖伯多祿廣場，並對群眾表示：「祝大家週日愉快。非常感謝大家。」
+            </option>
+            <option>
+              請判斷這段文字是正面或是負面情緒:這家餐廳的服務態度很差，等了一個小時才上菜
+            </option>
+            <option>
+              請判斷這段文字是正面或是負面情緒:苗栗縣某大樓今天發生命案，警消到場發現3人倒在臥室，9歲男童與8個月大女嬰明顯死亡，母親頸、腕有刀傷及胸口插著1把刀仍有生命跡象，送醫搶救，警方正調查釐清案情。
+            </option>
+            <option>
+              請判斷這段文字是正面或是負面情緒:美媒報導，川普回任美國總統後，中國試圖與華府建立溝通管道，包括駐美大使謝鋒求見富商馬斯克等均告失敗。如今川普宣布34%的對等關稅已令中國沮喪及憤怒，美中缺乏溝通未來很可能使兩國陷入相互報復的循環，短期內很難重啟談判。
+            </option>
+            <option>
+              請判斷這段文字是正面或是負面情緒:美國財經新聞網CNBC報導，Coin
+              Metrics的數據顯示，比特幣價格一度跌至7萬6221美元，這個價格和今年1月創下的歷史高點相比跌幅達30%。今年多數時間，比特幣價格都在8萬美元以上，僅近期波動期間幾次短暫跌破該價位。
+            </option>
+            <option>
+              請判斷這段文字是正面或是負面情緒:美國課徵對等關稅衝擊台灣經濟，國民黨團總召傅崐萁指總預算刪減的新台幣1439億元可作紓困。民進黨立法院黨團總召柯建銘說，總預算已表決通過，經總統公告，接續要暫時處分與釋憲，怎麼拿回來，毫無憲法常識。
+            </option>
+            <option>
+              請判斷以下文字的情緒是正面還是負面：
+              範例：「這家餐廳的食物非常美味，服務態度也很好。」情緒：正面
+              請分析：「我對這部電影的劇情和演員表現都非常滿意，值得推薦給大家。」
+            </option>
+            <option>
+              請判斷以下文字的情緒是正面還是負面：
+              範例：「這家公司的客服態度惡劣，產品品質也不佳。」情緒：負面
+              請分析：「昨天股市大跌，許多投資人損失慘重。」
+            </option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">情緒分類 One or Few-shot </label>
+          <select
+            class="form-select mb-2 example-selector"
+            id="example_selector_sentiment_fewshot"
+          >
+            <option value="" selected>-- 請選擇範例 --</option>
+            <option>
+              請判斷以下文字的情緒是正面還是負面：
+              範例1：「這家餐廳的服務態度很好，食物美味可口。」情緒：正面
+              範例2：「這場電影很無聊，浪費我的時間和金錢。」情緒：負面
+              範例3：「今天天氣真好，陽光明媚。」情緒：正面
+              範例4：「我的手機壞了，修理費用很貴。」情緒：負面
+              請分析：「我剛升職了，薪水也增加了，但工作壓力會變大。」
+            </option>
+            <option>
+              請判斷以下新聞文本的情緒是正面還是負面：
+              範例1：「台灣科技公司宣布新一輪投資計畫，預計創造上千個就業機會。」情緒：正面
+              範例2：「連日豪雨造成南部多處淹水，農作物損失慘重。」情緒：負面
+              範例3：「國內疫苗接種率突破80%，重症率明顯下降。」情緒：正面
+              範例4：「專家警告，全球經濟衰退風險上升，企業應謹慎因應。」情緒：負面
+              範例5：「台灣選手在國際比賽中勇奪金牌，為國爭光。」情緒：正面
+              請分析：「中央銀行宣布維持利率不變，專家認為對於控制通膨有所幫助，但可能延緩經濟復甦。」
+            </option>
+            <option>
+              請判斷以下含有複雜情緒的文本，主要偏向正面還是負面：
+              範例1：「雖然這款手機價格有點高，但功能和品質都很優秀，整體來說我很滿意。」情緒：正面
+              範例2：「飯店的位置很好，交通便利，但房間有點小，服務人員態度也不是很親切。」情緒：負面
+              範例3：「考試雖然很難，但我最終還是通過了，感到很開心。」情緒：正面
+              範例4：「新政策有助於企業發展，但對部分弱勢群體可能造成影響，政府應該要有配套措施。」情緒：中性偏正面
+              範例5：「這部電影的特效做得很好，演員也很敬業，但劇情發展太過牽強，結局也令人失望。」情緒：負面
+              請分析：「這間餐廳的菜色非常美味，服務也很好，價格雖然偏高，但考慮到食物品質和用餐環境，還算合理。」
+            </option>
+            <option>
+              請依照以下範例進行文本分類： 範例1:
+              文本：「這家餐廳的服務真糟糕，菜色也不新鮮」 分類：負面評價 範例2:
+              文本：「這間餐廳服務非常好，食物也美味」 分類：正面評價 範例3:
+              文本：「我對這家餐廳沒有特別感覺」 分類：中性評價
+              請分類：「我在這家飯店住了兩晚，房間很乾淨，員工也很有禮貌，但是價格偏高」
+            </option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">新聞分類 Zero-shot</label>
+          <select
+            class="form-select mb-2 example-selector"
+            id="example_selector_news_zeroshot"
+          >
+            <option value="" selected>-- 請選擇範例 --</option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「行政院長今日出席立法院總質詢，針對近期的稅改議題回應在野黨質疑，並表示將持續聽取各界意見。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「蘋果公司今日發表新一代iPhone，搭載最新AI技術，預計下個月在全球市場上市。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「中華隊在昨晚的亞洲盃棒球賽以5比3擊敗日本隊，晉級四強賽，將與韓國爭奪決賽資格。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「台股今日收盤上漲200點，漲幅1.2%，分析師指出外資連續三日買超，主要集中在電子股。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「全球供應鏈重組，多家國際大廠宣布加碼投資台灣，經濟部估計未來五年可望帶來上兆元投資額。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「第59屆金馬獎昨晚落幕，《小島上的大戲院》獲得最佳影片，李安導演獲頒終身成就獎。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「衛福部發布最新飲食指南，建議成人每日攝取至少五蔬果，並減少精緻糖與鹽的攝取量。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「聯合國氣候峰會於巴黎召開，來自196個國家的代表齊聚一堂，討論全球減碳新目標。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「台北市一處施工地發生瓦斯外洩事件，消防局緊急疏散附近居民，所幸無人傷亡。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「國家歌劇院推出台灣本土原創歌劇《梅山春秋》，結合傳統音樂與現代表演藝術，獲得觀眾熱烈迴響。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              新聞：「海基會與海協會舉行第十二輪會談，就貿易便利化與文化交流等議題達成初步共識。」
+            </option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">新聞分類 One or Few-shot</label>
+          <select
+            class="form-select mb-2 example-selector"
+            id="example_selector_news_fewshot"
+          >
+            <option value="" selected>-- 請選擇範例 --</option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              範例1:新聞：「立法院今日三讀通過勞基法修正案，引發勞工團體抗議。」類別：政治。
+              範例2:新聞：「台灣晶片製造商發表最新7奈米製程技術，領先全球。」類別：科技。
+              範例3:新聞：「中華女足昨日以2:0擊敗泰國隊，挺進亞運四強。」
+              類別：運動。
+              範例4:新聞：「台股今日大漲300點，投資人看好科技股後市。」類別：證卷。
+              範例5:新聞：「多家航空公司宣布下月起調漲票價，因應燃油成本上升。」類別：產經。
+              範例6:新聞：「知名歌手將於下月在台北小巨蛋舉辦個人演唱會。」
+              類別：娛樂。
+              範例7:新聞：「專家提醒民眾梅雨季節應注意居家防潮與健康保健。」類別：生活。
+              範例8:新聞：「美國總統與日本首相舉行高峰會，討論區域安全合作。」類別：國際。
+              範例9:新聞：「台北市發生重大車禍，造成3人受傷，警方呼籲用路人小心。」類別：社會。
+              範例10:新聞：「南部古蹟修復完成重新開放，展現百年歷史風華。」
+              類別：文化。
+              範例11:新聞：「兩岸文創產業論壇在上海舉行，台灣代表分享產業經驗。」類別：兩岸。
+              請問以下新聞屬於哪一類別：「市府規劃在捷運站周邊增設自行車道，預計明年完工，將提供市民更便利的交通選擇。」
+            </option>
+            <option>
+              請將這則新聞歸類到以下類別之一：政治、科技、運動、證卷、產經、娛樂、生活、國際、社會、文化、兩岸。
+              以下是分類新聞類別的範例：
+              範例1:新聞：「立法院今日三讀通過多項法案，朝野立委就預算問題展開激烈辯論」類別：政治。
+              範例2:新聞：「台積電宣布投資新廠區，預計創造上千個工作機會」
+              類別：產經。
+              範例3:新聞：「世界盃足球賽台灣時間明晨開打，球迷熬夜觀賽」類別：運動。
+              請分類：「市區捷運新路線將於下月啟用，預計紓解交通擁擠情況，票價方案尚在討論中」
+            </option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="textarea_content" class="form-label">輸入您的問題</label>
+          <textarea
+            class="form-control"
+            id="textarea_content"
+            name="textarea_text"
+            rows="6"
+            placeholder="請輸入您想問的問題..."
+          ></textarea>
+        </div>
+        <button type="button" class="btn btn-primary w-100" id="btn_send">
+          <i class="bi bi-send"></i> 發送
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Chat display column -->
+  <div class="col-lg-8 mb-3">
+    <div class="card h-100">
+      <div
+        class="card-header d-flex justify-content-between align-items-center"
+      >
+        <h4 class="mb-0">對話內容</h4>
+        <button class="btn btn-outline-secondary btn-sm" id="btn_clear">
+          <i class="bi bi-trash"></i> 清除對話
+        </button>
+      </div>
+      <div class="card-body">
+        <div
+          id="chat_container"
+          class="overflow-auto"
+          style="height: 60vh; max-height: 500px"
+        >
+          <div class="text-center text-muted my-5">
+            <p>👋 歡迎使用 AI 聊天機器人！</p>
+            <p>您可以直接提問，或從左側選擇提示範例</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- row -->
+{% endblock %} {% block extra_js %}
+<!-- Add Marked.js for Markdown parsing -->
+<script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+<!-- Add Highlight.js for code syntax highlighting -->
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/highlight.min.js"></script>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.7.0/build/styles/github.min.css"
+/>
+
+<!-- Add custom CSS for markdown rendering and chat bubbles -->
+<style>
+  /* Existing markdown styles */
+  .markdown-content {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
+      sans-serif;
+  }
+  .markdown-content pre {
+    background-color: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow: auto;
+  }
+  .markdown-content code {
+    background-color: rgba(175, 184, 193, 0.2);
+    border-radius: 6px;
+    padding: 0.2em 0.4em;
+    font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas,
+      Liberation Mono, monospace;
+  }
+  .markdown-content pre code {
+    background-color: transparent;
+    padding: 0;
+  }
+  .markdown-content table {
+    border-collapse: collapse;
+    margin: 15px 0;
+    width: 100%;
+  }
+  .markdown-content table th,
+  .markdown-content table td {
+    border: 1px solid #dfe2e5;
+    padding: 6px 13px;
+  }
+  .markdown-content table tr:nth-child(2n) {
+    background-color: #f6f8fa;
+  }
+  .markdown-content blockquote {
+    color: #6a737d;
+    border-left: 0.25em solid #dfe2e5;
+    padding: 0 1em;
+    margin: 0 0 16px 0;
+  }
+  .markdown-content img {
+    max-width: 100%;
+  }
+  .markdown-content h1,
+  .markdown-content h2 {
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.3em;
+  }
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3,
+  .markdown-content h4,
+  .markdown-content h5,
+  .markdown-content h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  /* Professional chat bubble styles */
+  .chat-bubble-user {
+    background-color: #2c7873 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .chat-bubble-user .card-body {
+    padding: 10px 14px !important;
+  }
+
+  .chat-bubble-user p {
+    margin-bottom: 0;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    background-color: #2c7873;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 8px;
+    color: white;
+    font-size: 12px;
+  }
+
+  /* Bot message styling */
+  .bot-message {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+  }
+
+  .bot-message .card-body {
+    padding: 10px 14px !important;
+  }
+
+  /* Error message styling */
+  .error-message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    color: #721c24;
+  }
+</style>
+
+<!-- Here is our javascript code -->
+<script>
+  // 創建一個對話歷史陣列
+  let conversationHistory = [];
+
+  // 配置Markdown解析器
+  marked.setOptions({
+    highlight: function (code, lang) {
+      const language = hljs.getLanguage(lang) ? lang : "plaintext";
+      return hljs.highlight(code, { language }).value;
+    },
+    langPrefix: "hljs language-",
+    gfm: true,
+    breaks: true,
+  });
+
+  // 範例選擇器自動貼到輸入區
+  $(".example-selector").on("change", function () {
+    const selectedText = $(this).val();
+    if (selectedText) {
+      $("#textarea_content").val(selectedText);
+    }
+    // 清空其他範例選擇器
+    $(".example-selector").not(this).val("");
+  });
+
+  // 處理範例選擇器變更事件
+  $("#example_selector").on("change", function () {
+    const selectedValue = $(this).val();
+
+    if (selectedValue) {
+      // 從選擇的選項獲取文字內容
+      const selectedText = $("#example_selector option:selected").text().trim();
+      // 設置文字區域的值
+      $("#textarea_content").val(selectedText);
+    }
+  });
+
+  // 發送按鈕點擊事件
+  $("#btn_send").on("click", function (e) {
+    sendMessage();
+  });
+
+  // Enter 鍵發送消息 (Shift+Enter 換行)
+  $("#textarea_content").on("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // 清除對話按鈕點擊事件
+  $("#btn_clear").on("click", function (e) {
+    // 清除UI中的對話
+    $("#chat_container").empty().append(`
+          <div class="text-center text-muted my-5">
+            <p>👋 歡迎使用 AI 聊天機器人！</p>
+            <p>您可以直接提問，或從左側選擇提示範例</p>
+          </div>
+        `);
+
+    // 清除對話歷史
+    conversationHistory = [];
+  });
+
+  // 發送消息函數
+  function sendMessage() {
+    const input_text = $("#textarea_content").val().trim();
+
+    if (!input_text) return;
+
+    // 顯示用戶消息
+    addMessage(input_text, "user");
+
+    // 將用戶消息添加到對話歷史
+    conversationHistory.push({
+      role: "user",
+      content: input_text,
+    });
+
+    // 顯示機器人正在輸入
+    const typingIndicator = addTypingIndicator();
+
+    // 創建一個空的回應容器
+    const botMessageContainer = addEmptyBotMessage();
+    const botMessageContent = botMessageContainer.find(".message-content");
+
+    // 清空輸入框並聚焦
+    $("#textarea_content").val("").focus();
+
+    // 使用fetch API和stream模式
+    fetch("api_ollama_chat/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: new URLSearchParams({
+        input_text: input_text,
+        conversation_history: JSON.stringify(conversationHistory),
+        stream: "true",
+      }),
+    })
+      .then((response) => {
+        // 移除正在輸入的指示符
+        typingIndicator.remove();
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        // 檢查是否是流式回應
+        if (response.headers.get("Content-Type") === "text/event-stream") {
+          // 處理流式回應
+          const reader = response.body.getReader();
+          let decoder = new TextDecoder();
+          let botResponse = "";
+
+          function readStream() {
+            return reader.read().then(({ done, value }) => {
+              if (done) {
+                // 完成流，將完整回應添加到對話歷史
+                conversationHistory.push({
+                  role: "assistant",
+                  content: botResponse,
+                });
+
+                // 使用Markdown進行最終渲染
+                botMessageContent.html(formatMarkdown(botResponse));
+
+                // 套用程式碼語法高亮
+                botMessageContainer.find("pre code").each(function (i, block) {
+                  hljs.highlightElement(block);
+                });
+
+                return;
+              }
+
+              // 解碼接收到的數據塊
+              const chunk = decoder.decode(value, { stream: true });
+
+              // 處理SSE格式的數據
+              const lines = chunk.split("\n\n");
+              lines.forEach((line) => {
+                if (line.startsWith("data: ")) {
+                  try {
+                    const jsonData = line.substring(6); // 去掉 'data: ' 前綴
+                    const parsedData = JSON.parse(jsonData);
+                    if (parsedData.response) {
+                      botResponse += parsedData.response;
+
+                      // 流式更新時使用臨時文本格式，完成後再用Markdown渲染
+                      botMessageContent.html(formatText(botResponse));
+                      scrollToBottom();
+                    }
+                  } catch (e) {
+                    console.error("JSON parsing error:", e, line);
+                  }
+                }
+              });
+
+              // 繼續讀取流
+              return readStream();
+            });
+          }
+
+          return readStream();
+        } else {
+          // 處理非流式回應
+          return response.json().then((data) => {
+            const botResponse = data.response || "抱歉，我沒有找到適當的回應。";
+
+            // 使用Markdown渲染
+            botMessageContent.html(formatMarkdown(botResponse));
+
+            // 套用程式碼語法高亮
+            botMessageContainer.find("pre code").each(function (i, block) {
+              hljs.highlightElement(block);
+            });
+
+            // 將機器人回應添加到對話歷史
+            conversationHistory.push({
+              role: "assistant",
+              content: botResponse,
+            });
+          });
+        }
+      })
+      .catch((error) => {
+        // 移除正在輸入的指示符
+        typingIndicator.remove();
+
+        // 顯示錯誤消息
+        addMessage("發生錯誤: " + error.message, "error");
+        console.error("Fetch Error:", error);
+      });
+  }
+
+  // 獲取CSRF令牌的函數
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  // 添加空的機器人消息容器，等待內容填充
+  function addEmptyBotMessage() {
+    // 清除歡迎信息
+    if ($("#chat_container .text-center.text-muted").length > 0) {
+      $("#chat_container").empty();
+    }
+
+    const messageHTML = `
+        <div class="d-flex justify-content-start mb-3">
+          <div class="card bot-message" style="max-width: 75%;">
+            <div class="card-body">
+              <div class="mb-0 message-content markdown-content"></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+    $("#chat_container").append(messageHTML);
+    scrollToBottom();
+
+    return $("#chat_container .d-flex.justify-content-start").last();
+  }
+
+  // 添加消息到聊天容器
+  function addMessage(text, type) {
+    // 清除歡迎信息
+    if ($("#chat_container .text-center.text-muted").length > 0) {
+      $("#chat_container").empty();
+    }
+
+    let messageHTML = "";
+
+    if (type === "user") {
+      messageHTML = `
+            <div class="d-flex justify-content-end mb-3 align-items-end">
+              <div class="card chat-bubble-user text-white" style="max-width: 75%;">
+                <div class="card-body">
+                  <p>${formatText(text)}</p>
+                </div>
+              </div>
+              <div class="user-avatar">
+                <i class="bi bi-person"></i>
+              </div>
+            </div>
+          `;
+    } else if (type === "bot") {
+      // 使用Markdown渲染機器人消息
+      messageHTML = `
+            <div class="d-flex justify-content-start mb-3">
+              <div class="card bot-message" style="max-width: 75%;">
+                <div class="card-body">
+                  <div class="mb-0 markdown-content">${formatMarkdown(
+                    text
+                  )}</div>
+                </div>
+              </div>
+            </div>
+          `;
+    } else if (type === "error") {
+      messageHTML = `
+            <div class="d-flex justify-content-start mb-3">
+              <div class="card error-message" style="max-width: 75%;">
+                <div class="card-body">
+                  <p class="mb-0">${formatText(text)}</p>
+                </div>
+              </div>
+            </div>
+          `;
+    }
+
+    $("#chat_container").append(messageHTML);
+
+    // 如果是機器人回應，套用程式碼語法高亮
+    if (type === "bot") {
+      document
+        .querySelectorAll(".markdown-content pre code")
+        .forEach((block) => {
+          hljs.highlightElement(block);
+        });
+    }
+
+    scrollToBottom();
+
+    return $(messageHTML);
+  }
+
+  // 添加"正在輸入"指示符
+  function addTypingIndicator() {
+    const indicatorHTML = `
+          <div class="typing-indicator d-flex justify-content-start mb-3">
+            <div class="card bot-message" style="max-width: 75%;">
+              <div class="card-body">
+                <div class="d-flex align-items-center">
+                  <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"></span>
+                  <span>AI 正在思考...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+    $("#chat_container").append(indicatorHTML);
+    scrollToBottom();
+
+    return $(".typing-indicator");
+  }
+
+  // 將聊天容器滾動到底部
+  function scrollToBottom() {
+    const chatContainer = document.getElementById("chat_container");
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // 格式化文本，處理換行符
+  function formatText(text) {
+    return text.replace(/\n/g, "<br>");
+  }
+
+  // 格式化文本為Markdown
+  function formatMarkdown(text) {
+    try {
+      return marked.parse(text);
+    } catch (e) {
+      console.error("Markdown parsing error:", e);
+      return formatText(text); // 如果Markdown解析失敗，退回到普通文本格式
+    }
+  }
+</script>
+{% endblock %}

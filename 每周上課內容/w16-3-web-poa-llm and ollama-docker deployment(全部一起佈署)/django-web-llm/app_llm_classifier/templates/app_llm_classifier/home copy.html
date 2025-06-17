@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}
+  文章情緒與新聞分類
+{% endblock %}
+{% block content %}
+  <div class="col-lg-12">
+    <h1>文章情緒與新聞分類</h1>
+    <p>
+      大型語言模型(Large Language Model)是從海量語料庫文字(維基百科等)訓練得到文字接龍模型後，再加以微調成能夠回答問題、可以生成程式碼等任務的模型。
+      <br />
+      欲將之運用於情緒分類、新聞分類等任務，可以運用以下幾種方式: (1) Zero-shot:直接用prompting的方式，給予模型一段文字，請它幫我們判斷情緒或分類新聞。
+      <br />
+      (2) Few-shot: 給予模型幾個範例，請它幫我們判斷情緒或分類新聞。
+      <br />
+      (3) RAG: 用檢索式生成(Retrieval-Augmented Generation)的方式，給予模型關於領域知識的文字資料庫，請它先去RAG向量相似度查詢後，再運用查詢結果去請模型判斷情緒或分類新聞。
+      <br />
+      (4) Fine-tuning: 用微調(fine-tuning)的方式，將模型的參數調整成適合我們的任務。
+      <br />
+      (5) 用遷移學習(transfer learning)的方式: 自訂一個分類模型，輸出層是MLP分類器，輸入是擷取自大型語言模型的某些較後面層(蘊含有文字語意的向量)，用訓練資料去學習或調整分類器權重，以進行分類任務。
+    </p>
+  </div>
+  <!-- row card -->
+  <div class="col-lg-6 mb-2">
+    <div class="card">
+      <div class="card-header">
+        <h4>情緒分類器</h4>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label for="textarea_content">輸入一段帶有情緒的文字...</label>
+          <textarea class="form-control" id="textarea_content" name="textarea_text" rows="6">蘋果不好吃</textarea>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn_deep">BERT深度模型</button>
+      </div>
+    </div>
+  </div>
+  <!-- column -->
+  <!-- Show sentiment score (probability) -->
+  <div class="col-lg-6 mb-2">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="h6 text-uppercase mb-0">判讀結果</h3>
+      </div>
+      <div class="card-body">
+        <!-- Show sentiment score (probability) -->
+        <ul id="show_sentiment_proba"></ul>
+      </div>
+    </div>
+  </div>
+  <!-- column -->
+{% endblock %} {% block extra_js %}
+  <!-- Here are our javascript code -->
+  <script>
+    // default text
+    $('#textarea_content').val('高級餐廳，服務好, 食物美味')
+    
+    const target_div = document.getElementById('show_sentiment_proba')
+    
+    //-- btn_deep on click event
+    $('#btn_deep').on('click', function (e) {
+      call_ajax()
+    })
+    
+    //--ajax function for getting sentimental score
+    function call_ajax() {
+      const input_text = $('#textarea_content').val()
+      console.log(input_text)
+      target_div.innerHTML = '' //顯示區先要清空
+      $.ajax({
+        type: 'POST',
+        // way #1: url path
+        url: 'api_get_sentiment/',
+        // way #2: call the API
+        // url: "http://127.0.0.1:8000/sentiment/api_get_sentiment/",
+        // way #3: call the internet API provided by others
+        // url: "http://163.18.23.21:8000/sentiment/api_get_sentiment/",
+    
+        data: {
+          input_text: input_text
+        },
+        success: function (received) {
+          //show sentiment score:
+    
+          $('#show_sentiment_proba').append('<li>負向機率:' + received.Negative + '</li>')
+          //target_div.innerHTML += "<li>負向機率:" + item.Negative + "</li>";
+          //用這樣寫也可以塞入一段HTML碼
+          target_div.innerHTML += '<li>正向機率:' + received['Positive'] + '</li>'
+    
+          //也可以這樣顯示
+          for (key in received) {
+            $('#show_sentiment_proba').append(key + ':' + received[key] + ' ')
+            //console.log(key);
+            //console.log(received[key]);
+          }
+        } //function
+      }) //ajax
+    } //ajax function
+  </script>
+{% endblock %}

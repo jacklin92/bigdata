@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  文本情緒判斷系統
+{% endblock %}
+{% block content %}
+<div class="col-lg-12">
+  <h1>文章情緒判斷系統</h1>
+  <p>BERT模型是Google開發的語言模型(Language Model)，該模型是從海量語料庫文字(維基百科等)訓練得到的字向量(word vectors)表達，蘊含有文字語意，在NLP文字理解任務中得到史無前例的進展，此處將其應用於情緒分類任務。</p>
+</div>
+
+<!-- row card -->
+<div class="col-lg-6 mb-2">
+  <div class="card">
+    <div class="card-header">
+      <h4>情緒分類器</h4>
+    </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label for="textarea_content">輸入一段帶有情緒的文字...</label><textarea class="form-control" id="textarea_content" name="textarea_text" rows="6">蘋果不好吃</textarea>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="btn_deep">BERT深度模型</button>
+    </div>
+  </div>
+</div>
+<!-- column -->
+
+<!-- Show sentiment score (probability) -->
+<div class="col-lg-6 mb-2">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="h6 text-uppercase mb-0">判讀結果</h3>
+    </div>
+    <div class="card-body">
+      <!-- Show sentiment score (probability) -->
+      <ul id="show_sentiment_proba"></ul>
+    </div>
+  </div>
+</div>
+<!-- column -->
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Here are our javascript code -->
+  <script>
+    // default text
+    $('#textarea_content').val('高級餐廳，服務好, 食物美味')
+    
+    const target_div = document.getElementById('show_sentiment_proba')
+    
+    //-- btn_deep on click event
+    $('#btn_deep').on('click', function (e) {
+      call_ajax()
+    })
+    
+    //--ajax function for getting sentimental score
+    function call_ajax() {
+      const input_text = $('#textarea_content').val()
+      console.log(input_text)
+      target_div.innerHTML = '' //顯示區先要清空
+      $.ajax({
+        type: 'POST',
+        // way #1: url path
+        url: 'api_get_sentiment/',
+        // way #2: call the first API
+        //url: "http://127.0.0.1:8000/api_get_sentiment/",
+        data: {
+          input_text: input_text
+        },
+        success: function (received) {
+          //show sentiment score:
+    
+          $('#show_sentiment_proba').append('<li>負向機率:' + received.Negative + '</li>')
+          //target_div.innerHTML += "<li>負向機率:" + item.Negative + "</li>";
+          //用這樣寫也可以塞入一段HTML碼
+          target_div.innerHTML += '<li>正向機率:' + received['Positive'] + '</li>'
+    
+          //也可以這樣顯示
+          for (key in received) {
+            $('#show_sentiment_proba').append(key + ':' + received[key] + ' ')
+            //console.log(key);
+            //console.log(received[key]);
+          }
+        } //function
+      }) //ajax
+    } //ajax function
+  </script>
+{% endblock %}

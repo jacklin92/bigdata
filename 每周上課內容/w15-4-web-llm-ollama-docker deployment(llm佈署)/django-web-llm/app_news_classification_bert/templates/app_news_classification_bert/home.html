@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  新聞類別判斷系統
+{% endblock %}
+{% block content %}
+<div class="col-lg-12">
+  <h1>新聞類別判斷系統</h1>
+  <p>BERT模型是Google開發的語言模型(Language Model)，該模型是從海量語料庫文字(維基百科等)訓練得到的字向量(word vectors)表達，蘊含有文字語意，在NLP文字理解任務中得到史無前例的進展，此處將其應用於新聞類別分類任務。</p>
+</div>
+
+<!-- row card -->
+<div class="col-lg-6 mb-2">
+  <div class="card">
+    <div class="card-header">
+      <h4>新聞類別分類器</h4>
+    </div>
+    <div class="card-body">
+      <div class="form-group">
+        <label for="textarea_content">輸入一段新聞文字...</label><textarea class="form-control" id="textarea_content" name="textarea_text" rows="6">中央社報導...</textarea>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="btn_deep">BERT深度模型</button>
+    </div>
+  </div>
+</div>
+<!-- column -->
+
+<!-- Show sentiment score (probability) -->
+<div class="col-lg-6 mb-2">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="h6 text-uppercase mb-0">判讀結果</h3>
+    </div>
+    <div class="card-body">
+      <!-- Show sentiment score (probability) -->
+      <ul id="show_category_proba"></ul>
+    </div>
+  </div>
+</div>
+<!-- column -->
+
+{% endblock %}
+
+{% block extra_js %}
+  <!-- Here are our javascript code -->
+  <script>
+    // default text
+    $('#textarea_content').val('日本富士新聞網報導，南韓軍方表示，北韓今天上午6時左右起總計試射3枚彈道飛彈。\n\n岸信夫批評，北韓在面臨境內疫情持續擴大的情況下，仍不顧民眾生命與生計，持續傾力研發核試驗與彈道飛彈，已透過大使館管道向北韓提出抗議。')
+    
+    const target_div = document.getElementById('show_category_proba')
+    
+    //-- btn_deep on click event
+    $('#btn_deep').on('click', function (e) {
+      call_ajax()
+    })
+    
+    //--ajax function for getting sentimental score
+    function call_ajax() {
+      const input_text = $('#textarea_content').val()
+      console.log(input_text)
+      target_div.innerHTML = '' //顯示區先要清空
+      $.ajax({
+        type: 'POST',
+        // way #1: url path
+        url: 'api_get_news_category/',
+        data: {
+          input_text: input_text
+        },
+        success: function (received) {
+          const item = received
+          console.log(item)
+          const label = received['label']
+          const proba = received['proba']
+          $('#show_category_proba').append('<li>新聞類別:' + label + '</li>')
+          target_div.innerHTML += '<li>機率:' + proba + '</li>'
+        } //function
+      }) //ajax
+    } //ajax function
+  </script>
+{% endblock %}

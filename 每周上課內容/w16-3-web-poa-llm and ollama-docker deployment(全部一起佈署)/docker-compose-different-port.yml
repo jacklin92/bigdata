@@ -1,0 +1,98 @@
+services:
+  web-poa:
+    build:
+      context: . # 在當下目錄(docker-compose.yml所在目錄)讓Dockerfile 建置（build context）
+      dockerfile: ./docker-files-poa/Dockerfile
+    container_name: web-poa
+    volumes:
+      - ./django-web-poa:/app
+      - static_volume_poa:/app/staticfiles/poa # Mount static files volume for poa
+      # - static_volume_shared:/app/staticfiles # 若要使用相同的共享靜態檔案卷
+    # 若只透過 Nginx 反向代理，不需公開 port
+    # 若要直接從外部訪問 web-poa，才需開啟
+    # ports:
+    #   - "8000:8000"  # 只有需要直接從主機存取時才需要此設定
+    expose:
+      - 8000 # Expose port 8000 for internal communication
+    env_file: ./docker-files-poa/.env # Load environment variables from .env file
+    depends_on:
+      - db # Wait for the database to be ready
+
+  db:
+    image: postgres:13 # Use the official PostgreSQL image
+    container_name: db # Name of the database container
+    ports:
+      - "5432:5432" # Expose PostgreSQL port
+    volumes:
+      # - postgres_data:/var/lib/postgresql/data  # Use Docker-managed volume for PostgreSQL data
+      - ./postgres_data:/var/lib/postgresql/data # Uncomment this line to use a local directory for PostgreSQL data
+    env_file: ./docker-files-poa/.env # Load environment variables from .env file
+    # environment:
+    #   POSTGRES_USER: postgres
+    #   POSTGRES_PASSWORD: postgres
+    #   POSTGRES_DB: postgres
+
+  web-llm:
+    build:
+      context: . # 在當下目錄(docker-compose.yml所在目錄)讓Dockerfile 建置（build context）
+      dockerfile: ./docker-files-llm/Dockerfile
+    container_name: web-llm # Name of the container for the Django app 不寫的話會自動生成與服務名稱web相同的名稱
+    volumes:
+      - ./django-web-llm:/app # Mount the local Django project directory
+      - static_volume_llm:/app/staticfiles/llm # Mount static files volume for llm
+    # 若只透過 Nginx 反向代理，不需公開 port
+    # 若要直接從外部訪問 web-llm，才需開啟
+    # ports:
+    #   - "8001:8001"  # 只有需要直接從主機存取時才需要此設定
+    # 暴露端口 8000 供內部通訊使用
+    # expose:
+    #  - 8000 # Expose port 8000 for internal communication
+    # 如果能夠使用 NVIDIA GPU 必須在此處加上deploy
+  ollama:
+    image: ollama/ollama:latest  # 使用 Ollama 的最新版本映像檔
+    container_name: ollama  # 指定容器名稱為 ollama
+    ports:
+      - "0.0.0.0:11434:11434"  # 對外開放本機的 11434 端口對應容器內部的 11434 端口（Ollama 預設 API 端口）
+    volumes:
+      - ollama-data:/root/.ollama  # 將容器內部的模型資料夾掛載到本地持久化卷中
+      - ./docker-files-ollama/entrypoint_ollama.sh:/entrypoint_ollama.sh:ro  # 將本地的 entrypoint.sh 腳本掛載到容器內部，並設為唯讀
+
+    entrypoint: [ "sh", "/entrypoint_ollama.sh" ] # 指定容器啟動時執行的腳本
+
+    restart: unless-stopped  # 若容器意外停止，自動重啟（除非手動停止）
+    tty: true  # 分配虛擬終端，對某些工具及除錯方便
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434  # 指定 Ollama 在容器內綁定的主機與端口
+      - OLLAMA_NUM_PARALLEL=2  # 同時允許 2 個請求並行處理
+      - OLLAMA_MAX_QUEUE=512  # 請求等待佇列的最大長度
+      - OLLAMA_MAX_LOADED_MODELS=3  # 同時可在記憶體中保留的模型數量上限
+      - OLLAMA_KEEP_ALIVE=-1  # 保持模型常駐記憶體，不自動卸載
+    
+    # 使用 NVIDIA GPU
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia  # 使用 NVIDIA 驅動
+    #           device_ids: ["0"]  # 指定使用第 0 顆 GPU（從 0 開始計算）
+    #           capabilities: [gpu]  # 宣告此裝置具有 GPU 能力
+
+  nginx:
+    build:
+      context: ./nginx # Path to your nginx Dockerfile
+    volumes:
+      - static_volume_poa:/app/staticfiles/poa # Mount the static files volume
+      - static_volume_llm:/app/staticfiles/llm # Change this path to match web-llm's structure
+    ports:
+      - "80:80"  # 將主機 80 埠對應到 Nginx 容器 80 埠 (對應 nginx.conf listen 80)
+      - "8001:8001"  # 將主機 8001 埠對應到 Nginx 容器 8001 埠 (對應 nginx.conf listen 8001)
+      # 這個設定是為了從主機存取 Nginx，與容器間通訊無關
+    depends_on:
+      - web-poa # Wait for the web-poa service to be ready
+      - web-llm # Wait for the web-llm service to be ready
+volumes:
+  postgres_data:   # Volume for PostgreSQL data
+  # Separate static volumes for each application
+  static_volume_poa:   # Volume for poa static files
+  static_volume_llm:   # Volume for llm static files
+  ollama-data:  # 定義名為 ollama-data 的卷，儲存模型資料

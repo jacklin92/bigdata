@@ -1,0 +1,246 @@
+{% extends 'base_v3.html' %}
+{% load static %}
+
+{% block title %}輿情分析平台 - 熱門關鍵詞分析{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-12 text-center mb-4">
+    <h1 class="page-title">各類新聞最熱門的關鍵詞</h1>
+    <p class="page-subtitle">熱門度分析：了解媒體關注哪些重要主題</p>
+  </div>
+
+  <!-- 選單與參數設定 -->
+  <div class="col-lg-6 mb-4">
+    <div class="analysis-card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="bi bi-sliders"></i> 熱門關鍵詞查詢設定</h2>
+      </div>
+      <div class="card-body">
+        <!-- 類別選單 -->
+        <div class="form-group">
+          <label class="form-label">新聞類別</label>
+          <select id="cate-selected" name="news_category" class="form-select">
+            <option>全部</option>
+            <option>即時</option>
+            <option>娛樂影劇</option>
+            <option>國際</option>
+            <option>政治</option>
+            <option>社會地方</option>
+            <option>財經</option>
+            <option>運動</option>
+            <option>玩樂</option>
+            <option>品味</option>
+            <option>遊戲3C</option>
+          </select>
+          <small class="form-text text-muted">請選擇欲查詢的新聞分類</small>
+        </div>
+
+        <!-- 熱門詞個數 -->
+        <div class="form-group">
+          <label class="form-label">顯示幾個熱門詞？</label>
+          <input id="topk-selected" name="topk" value="10" class="form-control">
+          <small class="form-text text-muted">預設為 10</small>
+        </div>
+
+        <!-- 查詢按鈕 -->
+        <div class="form-group text-end">
+          <button type="button" id="btn-ok" class="btn btn-primary">
+            <i class="bi bi-search"></i> 查詢
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 關鍵字圖表 -->
+  <div class="col-lg-6 mb-4">
+    <div class="analysis-card chart-container">
+      <div class="card-header">
+        <h2 class="card-title"><i class="bi bi-bar-chart"></i> 熱門關鍵字繪圖</h2>
+      </div>
+      <div class="card-body">
+        <canvas id="mychart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- 熱門關鍵字清單 -->
+  <div class="col-lg-6 mb-4">
+    <div class="analysis-card">
+      <div class="card-header">
+        <h2 class="card-title"><i class="bi bi-list-stars"></i> 熱門關鍵字清單</h2>
+      </div>
+      <div class="card-body">
+        <ul id="topkeys" class="list-group list-group-flush"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<!-- chartjs圖js-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+
+<!-- 程式碼區 -->
+<script>
+    // Show default top words bar chart when the page is loaded.
+    // Invoke callAjax() after the function is defined, unless callAjax() is defined with "hoisting"
+    callAjax();
+
+    //*新聞類別選單select被選中值有改變時，執行以下事件
+    //$('#cate-selected').on('change', callAjax() );
+    $('#cate-selected').on('change', function () {
+        callAjax();
+    }); //event function
+
+    //**按鈕事件
+    $('#btn-ok').on('click', function () {
+        callAjax();
+    }); //event function
+
+
+    // ** draw chart using Ajax 畫圖
+    // There are two ways to define a function:
+    // one is expression, and the other is definition with "hoisting"
+    // function with hoisting:  function callAjax() {}
+    // normal function expression: let callAjax = function() {}
+
+    // Define callAjax function with hoisting
+    // callAjax()這樣定義可以在被定義前就被使用 跟我們在Java裡面的函數用法一樣!
+
+    //let callAjax = function() {
+    function callAjax() {
+        let cate = $('#cate-selected').val();
+        //console.log(cate);
+
+        let topk = $('#topk-selected').val();
+        //console.log(topk);
+
+        $.ajax({
+            type: "POST",
+
+            url: "/topword/api_get_cate_topword/",
+            //url: "http://127.0.0.1:8000/topword/api_get_cate_topword/",
+            //url: "http://163.18.23.21:8000/topword/api_get_cate_topword/",
+            //url: "api_get_cate_topword/", //Not recommended!
+
+            data: {
+                "news_category": cate,
+                "topk": topk
+            },
+            success: function (received) {
+                //console.log(received);
+                let chart_data = received.chart_data;
+                let wf_pairs = received.wf_pairs;
+                console.log(wf_pairs)
+                showTopKeys(wf_pairs);
+                showChart(chart_data);
+            } //success function
+        }); //ajax
+    } //callAjax
+
+
+
+    //* 顯示關鍵詞資料函數
+    function showTopKeys(items) {
+        //先清除前一次的資料
+        $('#topkeys').empty();
+
+        //將內容加上li標籤附加起來，顯示在顯示區"topkeys"
+        for (let i = 0; i < items.length; i++) {
+            let item_li = "<li>" + items[i] + "</li>";
+            $('#topkeys').append(item_li);
+        }
+    } //function
+
+    //**繪圖函數showChart()
+    function showChart(chart_data) {
+
+        // 畫圖需要的數據資料
+        let values = chart_data.values;
+        let labels = chart_data.labels;
+        let category = chart_data.category;
+
+        //第1個變數: 餵給chart的資料
+        let data = {
+            labels: labels,
+            datasets: [{
+                label: category,
+                data: values,
+                backgroundColor: randomColors(values.length),
+                borderColor: randomColors(values.length),
+                borderWidth: 1,
+            }],
+        };
+
+        //第2個變數: chart的選項  指定y坐標軸從零開始顯示
+        let options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+        };
+
+        //取得在前面html區域欲顯示的圖代號
+        let canvas_mychrat = document.getElementById("mychart");
+
+
+        //**先清除前一個圖 再繪新圖
+        // 可以印出barchart物件是否存在
+        // console.log(window.barchart);
+        //先清除前一個圖 再繪新圖 if 有以下兩種寫法皆可
+        // if (window.barchart)  //若存在則為true
+        // if (typeof (barchart) != "undefined"){
+        if (window.barchart) {
+            barchart.destroy();
+        }
+
+        //**繪圖(產生一個圖物件變數名稱為barchart)
+        // 必須全域變數--注意:前面不要有let, var, const等修飾詞
+        // 理由: 我們要讓它存在於網頁全域變數，
+        // 這樣我們才方便判斷是否有前一次的圖，如果存在有，要刪除之，否則，很多張圖會疊在一起 
+        barchart = new Chart(canvas_mychrat, {
+            type: 'bar',
+            data: data,
+            options: options,
+        });
+
+
+        //** 產生隨機顏色
+        function randomColors(num_colors) {
+            let colors = [];
+
+            for (i = 0; i < num_colors; i++) {
+
+                let r = Math.floor(Math.random() * 255);
+                let g = Math.floor(Math.random() * 255);
+                let b = Math.floor(Math.random() * 255);
+                let rgb = `rgba(${r},${g},${b},0.5)` // (red, green, blue, alfa) alfa透明度
+
+                colors.push(rgb);
+            }
+            return colors;
+        }
+
+
+    } //show chart function
+
+
+    // document就是這個網頁HTML所有的元素
+    // window就是這個網頁的全域變數global variables:有一大堆，我們自己定義的有callAjax, showChart, barchart等
+    // 把document, window印出來看看就能理解它們是甚麼
+    //console.log(document);
+    //console.log(window);
+</script>
+{% endblock %}

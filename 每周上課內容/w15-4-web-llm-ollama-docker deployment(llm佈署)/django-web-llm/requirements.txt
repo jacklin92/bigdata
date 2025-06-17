@@ -1,0 +1,22 @@
+# pip freeze > my_requirements
+Django==4.1
+djangorestframework==3.13.1
+gunicorn==20.1.0
+django-cors-headers==3.13.0
+markdown==3.7
+pandas==2.2.3
+SQLAlchemy==2.0.35
+faiss-cpu==1.7.3
+numpy==1.26.4
+scipy==1.14.1
+ollama==0.4.7
+requests==2.32.3
+
+# for postgres db
+psycopg2==2.9.3
+#sycopg2-binary==2.9.3
+
+# PyTorch and Transformers
+torch==2.5.0
+transformers==4.46.1
+hf_xet==1.1.2

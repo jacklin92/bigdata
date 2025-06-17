@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}
+  文章情緒與新聞分類
+{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h1>文章情緒與新聞分類</h1>
+    <p>
+      大型語言模型(Large Language Model)是從海量語料庫文字(維基百科等)訓練得到文字接龍模型後，再加以微調成能夠回答問題、可以生成程式碼等任務的模型。
+      <br />
+      欲將之運用於情緒分類、新聞分類等任務，可以運用以下幾種方式: (1) Zero-shot:直接用prompting的方式，給予模型一段文字，請它幫我們判斷情緒或分類新聞。
+      <br />
+      (2) Few-shot: 給予模型幾個範例，請它幫我們判斷情緒或分類新聞。
+      <br />
+      (3) RAG: 用檢索式生成(Retrieval-Augmented Generation)的方式，給予模型關於領域知識的文字資料庫，請它先去RAG向量相似度查詢後，再運用查詢結果去請模型判斷情緒或分類新聞。
+      <br />
+      (4) Fine-tuning: 用微調(fine-tuning)的方式，將模型的參數調整成適合我們的任務。
+      <br />
+      (5) 用遷移學習(transfer learning)的方式: 自訂一個分類模型，輸出層是MLP分類器，輸入是擷取自大型語言模型的某些較後面層(蘊含有文字語意的向量)，用訓練資料去學習或調整分類器權重，以進行分類任務。
+    </p>
+  </div>
+</div>
+  
+  <div class="row">
+  <!-- row card -->
+  <div class="col-lg-6 mb-3">
+    <div class="card">
+      <div class="card-header">
+        <h4>情緒分類器</h4>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="textarea_content" class="form-label">輸入一段帶有情緒的文字...</label>
+          <textarea class="form-control" id="textarea_content" name="textarea_text" rows="6">蘋果不好吃</textarea>
+        </div>
+        <button type="button" class="btn btn-primary" id="btn_deep">BERT深度模型</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- column -->
+  <!-- Show sentiment score (probability) -->
+  <div class="col-lg-6 mb-3">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">判讀結果</h5>
+      </div>
+      <div class="card-body">
+        <!-- Show sentiment score (probability) -->
+        <ul id="show_sentiment_proba" class="list-group list-group-flush"></ul>
+</div>
+      </div>
+    </div>
+<!-- column -->
+  </div>
+  <!-- column -->
+{% endblock %} {% block extra_js %}
+  <!-- Here are our javascript code -->
+  <script>
+    // default text
+    $('#textarea_content').val('高級餐廳，服務好, 食物美味')
+    
+    const target_div = document.getElementById('show_sentiment_proba')
+    
+    //-- btn_deep on click event
+    $('#btn_deep').on('click', function (e) {
+      call_ajax()
+    })
+    
+    //--ajax function for getting sentimental score
+    function call_ajax() {
+      const input_text = $('#textarea_content').val()
+      console.log(input_text)
+      target_div.innerHTML = '' //顯示區先要清空
+      $.ajax({
+        type: 'POST',
+        // way #1: url path
+        url: 'api_get_sentiment/',
+        // way #2: call the internet API provided by others
+        // url: "http://163.18.23.20:8000/sentiment/api_get_sentiment/",
+    
+        data: {
+          input_text: input_text
+        },
+        success: function (received) {
+          //show sentiment score:
+          
+          // 使用Bootstrap 5的list-group-item格式
+          $('#show_sentiment_proba').append('<li class="list-group-item">負面機率: ' + received.負面 + '</li>')
+          
+          // 使用Bootstrap 5的list-group-item格式
+          $(target_div).append('<li class="list-group-item">正面機率: ' + received['正面'] + '</li>')
+        },
+        error: function(xhr, status, error) {
+          // 新增錯誤處理
+          $('#show_sentiment_proba').append('<li class="list-group-item text-danger">發生錯誤: ' + error + '</li>');
+          console.error("AJAX Error: " + status + " - " + error);
+        }
+      }) //ajax
+    } //ajax function
+  </script>
+{% endblock %}

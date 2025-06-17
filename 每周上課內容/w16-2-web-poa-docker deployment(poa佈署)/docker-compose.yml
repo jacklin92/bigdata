@@ -1,0 +1,48 @@
+services:
+  web-poa:
+    build:
+      context: . # 在當下目錄(docker-compose.yml所在目錄)讓Dockerfile 建置（build context）
+      dockerfile: ./docker-files-poa/Dockerfile
+    container_name: web-poa # Name of the container for the Django app 不寫的話會自動生成與服務名稱web相同的名稱
+    volumes:
+      - ./django-web-poa:/app # Mount the local Django project directory
+      - static_volume_poa:/app/staticfiles # Mount the static files volume
+    expose:
+      - 8000 # Expose port 8000 for internal communication
+    env_file: ./docker-files-poa/.env # Load environment variables from .env file
+    depends_on:
+      - db # Wait for the database to be ready
+
+  db:
+    image: postgres:13 # Use the official PostgreSQL image
+    container_name: db # Name of the database container
+    ports:
+      - "5432:5432" # Expose PostgreSQL port
+    volumes:
+      # - postgres_data:/var/lib/postgresql/data  # Use Docker-managed volume for PostgreSQL data
+      - ./postgres_data:/var/lib/postgresql/data # Uncomment this line to use a local directory for PostgreSQL data
+    env_file: ./docker-files-poa/.env # Load environment variables from .env file
+    # environment:
+    #   POSTGRES_USER: postgres
+    #   POSTGRES_PASSWORD: postgres
+    #   POSTGRES_DB: postgres
+
+  nginx:
+    build:
+      context: ./nginx # Path to your nginx Dockerfile
+    volumes:
+      - static_volume_poa:/app/staticfiles/poa # Mount the static files volume
+    ports:
+      - "80:80"
+    depends_on:
+      - web-poa # Wait for the Django app to be ready
+
+volumes:
+  postgres_data:   # Volume for PostgreSQL data
+  # static_volume_poa:可以將兩處static_volume_poa共用，方便nginx與web-poa存取
+  static_volume_poa:   # Volume for static files
+
+
+# 說明:
+# context: . 代表以目前 docker-compose.yml 所在的目錄作為 Docker 建置環境（build context）。
+# 這表示 Docker build 時，可以存取這個目錄下的所有檔案與子目錄，方便在 Dockerfile 中使用 COPY 或 ADD 指令將專案檔案加入映像檔。
